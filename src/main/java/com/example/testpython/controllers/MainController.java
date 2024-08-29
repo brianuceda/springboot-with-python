@@ -64,6 +64,11 @@ public class MainController {
             String response = pythonUtils.executeFunction("python", "search_youtube", pythonParams);
             List<YoutubeSearchDTO> dto = pythonUtils.convertToDTOList(response, YoutubeSearchDTO.class);
 
+            // Solo para este caso de videos de youtube
+            for (YoutubeSearchDTO video : dto) {
+                video.setUrlSuffix("https://www.youtube.com/" + video.getUrlSuffix());
+            }
+
             return new ResponseEntity<>(dto, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);

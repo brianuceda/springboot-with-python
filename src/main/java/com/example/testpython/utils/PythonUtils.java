@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.java.Log;
@@ -89,18 +90,20 @@ public class PythonUtils {
     }
 
     public <T> T convertToDTO(String jsonString, Class<T> dtoClass) {
-        ObjectMapper objectMapper = new ObjectMapper();
         T dto = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        // Configurar el ObjectMapper para usar la estrategia de nombres de snake_case
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
         try {
             // Reemplaza valores de Python para que sean válidos en Java
             jsonString = jsonString.replaceAll("None", "null");
             jsonString = jsonString.replaceAll("True", "true");
             jsonString = jsonString.replaceAll("False", "false");
-            jsonString = jsonString.replaceAll("'", "\"");
 
             // Verificar si la respuesta contiene un campo "error"
             JsonNode jsonNode = objectMapper.readTree(jsonString);
+
             // Crear un DTO con el mensaje de error
             if (jsonNode.has("error")) {
                 dto = dtoClass.getDeclaredConstructor().newInstance();
@@ -126,8 +129,10 @@ public class PythonUtils {
     }
 
     public <T> List<T> convertToDTOList(String jsonString, Class<T> dtoClass) {
-        ObjectMapper objectMapper = new ObjectMapper();
         List<T> dtoList = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        // Configurar el ObjectMapper para usar la estrategia de nombres de snake_case
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     
         try {
             // Reemplaza valores de Python para que sean válidos en Java
