@@ -39,7 +39,8 @@ RUN /bin/bash -c "source $HOME/.bashrc && pyenv install 3.8.0 && pyenv global 3.
 # Establecer el directorio de trabajo para la construcción de la aplicación
 WORKDIR /app
 
-# Copiar el pom.xml y los fuentes
+# Copiar los archivos necesarios
+COPY requirements.txt .
 COPY pom.xml .
 COPY src ./src/
 
