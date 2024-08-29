@@ -53,7 +53,10 @@ public class MainController {
     }
 
     @GetMapping("/search_youtube")
-    public ResponseEntity<?> searchYoutube(@RequestParam String query, @RequestParam Integer maxResults) {
+    public ResponseEntity<?> searchYoutube(
+        @RequestParam String query,
+        @RequestParam(required = false, defaultValue = "1") Integer maxResults) {
+        
         try {
             List<Object> javaParams = List.of(query, maxResults);
             String pythonParams = pythonUtils.convertParamsToListOnPython(javaParams);
