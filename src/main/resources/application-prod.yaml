@@ -1,0 +1,5 @@
+APP_PRODUCTION: true
+
+spring:
+  application:
+    name: testpython

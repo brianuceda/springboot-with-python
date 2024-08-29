@@ -7,18 +7,34 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.java.Log;
 
 @Service
 @Log
 public class PythonUtils {
-    private String pythonPath = "venv/Scripts/python.exe";
-    private String pythonScriptsPath = "src/main/java/com/example/testpython/python/";
+    @Value("${APP_PRODUCTION}")
+    private String appProduction;
+
+    private String pythonPath;
+    private String pythonScriptsPath;
+
+    @PostConstruct
+    public void init() {
+        this.pythonScriptsPath = "src/main/java/com/example/testpython/python/";
+
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            this.pythonPath = "venv/Scripts/python.exe";
+        } else {
+            this.pythonPath = "venv/bin/python";
+        }
+    }
 
     public String executeFunction(String scriptName, String functionName, Object variable) throws Exception {
         String result = "";
