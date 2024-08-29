@@ -12,8 +12,8 @@ RUN apt-get install -y maven openjdk-17-jdk && \
     apt-get clean
 
 # Configurar variables de entorno para Java
-ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
-ENV PATH $JAVA_HOME/bin:$PATH
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV PATH=$JAVA_HOME/bin:$PATH
 
 # ? Instalar dependencias necesarias para usar Pyenv
 RUN apt-get install -y \
@@ -28,9 +28,9 @@ RUN apt-get install -y \
 RUN curl https://pyenv.run | bash
 
 # Configurar Pyenv en el entorno
-ENV HOME /root
-ENV PYENV_ROOT "$HOME/.pyenv"
-ENV PATH "$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+ENV HOME=/root
+ENV PYENV_ROOT="$HOME/.pyenv"
+ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
 
 # Instalar Python 3.8.0 usando Pyenv
 RUN /bin/bash -c "source $HOME/.bashrc && pyenv install 3.8.0 && pyenv global 3.8.0"
