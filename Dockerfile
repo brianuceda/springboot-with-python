@@ -5,7 +5,7 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Actualizar lista de paquetes e instalar dependencias necesarias
-RUN apt-get update -y && apt-get upgrade -y && pat-get install -y git
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y git
 
 # Instalar Java 17
 RUN apt-get install -y maven openjdk-17-jdk && \
