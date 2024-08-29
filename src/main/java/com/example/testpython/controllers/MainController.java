@@ -66,7 +66,7 @@ public class MainController {
 
             // Solo para este caso de videos de youtube
             for (YoutubeSearchDTO video : dto) {
-                video.setUrlSuffix("https://www.youtube.com/" + video.getUrlSuffix());
+                video.setUrlSuffix("https://www.youtube.com" + video.getUrlSuffix());
             }
 
             return new ResponseEntity<>(dto, HttpStatus.OK);
