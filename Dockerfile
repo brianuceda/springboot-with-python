@@ -5,10 +5,10 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Actualizar lista de paquetes e instalar dependencias necesarias
-RUN apt update -y && sudo apt upgrade -y
+RUN apt-get update -y && apt-get upgrade -y
 
-# ? Instalar Java 17
-RUN apt install -y maven openjdk-17-jdk && \
+# Instalar Java 17
+RUN apt-get install -y maven openjdk-17-jdk && \
     apt-get clean
 
 # Configurar variables de entorno para Java
@@ -16,7 +16,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH $JAVA_HOME/bin:$PATH
 
 # ? Instalar dependencias necesarias para usar Pyenv
-RUN apt install -y \
+RUN apt-get install -y \
     software-properties-common \
     make build-essential libssl-dev zlib1g-dev \
     libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
