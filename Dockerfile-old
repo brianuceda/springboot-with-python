@@ -1,0 +1,42 @@
+# Usar una imagen base de Java
+FROM openjdk:17-jdk-slim
+
+# Establecer el directorio de trabajo
+WORKDIR /app
+
+# Copiar archivos de proyecto
+COPY . .
+
+# Instalar Python y las bibliotecas requeridas
+RUN apt-get update && \
+    apt-get install -y make build-essential libssl-dev zlib1g-dev && \
+    apt-get install -y libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm && \
+    apt-get install -y libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev && \
+    apt-get install -y liblzma-dev git && \
+    curl https://pyenv.run | bash
+
+# Configurar pyenv en el entorno
+ENV HOME /root
+ENV PYENV_ROOT "$HOME/.pyenv"
+ENV PATH "$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+
+# Instalar Python 3.8.0 usando pyenv
+RUN /bin/bash -c "source $HOME/.bashrc && pyenv install 3.8.0 && pyenv global 3.8.0"
+
+# Crear un entorno virtual en Python
+RUN /bin/bash -c "python3.8 -m venv venv"
+
+# Activar el entorno virtual y actualizar pip
+RUN /bin/bash -c "source venv/bin/activate && pip install --upgrade pip"
+
+# Instalar las dependencias de Python
+RUN /bin/bash -c "source venv/bin/activate && pip install -r requirements.txt"
+
+# Compilar la aplicación
+RUN ./mvnw clean package
+
+# Exponer el puerto de la aplicación
+EXPOSE 8080
+
+# Ejecutar la aplicación
+CMD ["java", "-jar", "target/tu-aplicacion.jar"]
