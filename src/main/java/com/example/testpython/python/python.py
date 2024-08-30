@@ -29,15 +29,10 @@ def watch_youtube(v):
 
 def search_youtube(params):
     import json
-    import ast
     from youtube_search import YoutubeSearch
     
-    # Verifica si params es una cadena y conviértelo a lista
-    if isinstance(params, str):
-        try:
-            params = ast.literal_eval(params)
-        except (ValueError, SyntaxError) as e:
-            print({'error': f'Error al convertir los parámetros: {str(e)}'})
+    # Extraer los parámetros
+    params = extract_params(params)
     
     search_param = params[0]
     max_results_param = int(params[1])
@@ -52,7 +47,19 @@ def search_youtube(params):
         print(videos)
     except Exception as e:
         print({'error': str(e)})
+        
+# Privados
+def extract_params(params):
+    import ast
+    
+    # Verifica si params es una cadena y conviértelo a lista
+    if isinstance(params, str):
+        try:
+            return ast.literal_eval(params)
+        except (ValueError, SyntaxError) as e:
+            print({'error': f'Error al convertir los parámetros: {str(e)}'})
 
+# Main
 if __name__ == "__main__":
     function_name = sys.argv[1]  # El nombre de la función que se debe ejecutar
     argument = sys.argv[2]       # El argumento que se debe pasar a la función
@@ -62,4 +69,4 @@ if __name__ == "__main__":
         func = globals()[function_name]
         func(argument)
     else:
-        print(f"Función '{function_name}' no encontrada en el script")
+        print({'error': f'La función {function_name} no existe en el script'})

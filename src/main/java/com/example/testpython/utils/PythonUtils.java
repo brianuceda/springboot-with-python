@@ -39,11 +39,13 @@ public class PythonUtils {
             this.pythonPath = "venv/bin/python";
         }
     }
+    
+    public String executeFunction(String scriptName, String functionName) throws Exception {
+        return this.executeFunction(scriptName, functionName, null);
+    }
+
 
     // Ejecuta una función de un script de Python
-    // scriptName: Nombre del script de Python
-    // functionName: Nombre de la función a ejecutar dentro del script
-    // params: Parámetros que se pasan a la función (pueden ser de cualquier tipo)
     public String executeFunction(String scriptName, String functionName, Object params) throws Exception {
         String result = "";
 
@@ -56,7 +58,12 @@ public class PythonUtils {
         command.add(this.pythonPath); // Ruta del ejecutable de Python
         command.add(this.pythonScriptsPath + scriptName); // Ruta del script de Python
         command.add(functionName); // Nombre de la función a ejecutar
-        command.add(params.toString()); // Argumento(s) de la función convertidos a cadena de texto: "[param1, param2, ...]"
+
+        // Si hay parámetros, los agrega al comando
+        if (params != null) {
+            // Argumento(s) de la función convertidos a cadena de texto: "[param1, param2, ...]"
+            command.add(params.toString());
+        }
 
         // Crea un proceso para ejecutar el comando creado
         ProcessBuilder processBuilder = new ProcessBuilder(command);

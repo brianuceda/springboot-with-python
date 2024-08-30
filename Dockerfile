@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Actualizar lista de paquetes e instalar dependencias necesarias
 RUN apt-get update -y && apt-get upgrade -y && apt-get install -y git
 
-# Instalar Java 17
+# ? Java 17
 RUN apt-get install -y maven openjdk-17-jdk && \
     apt-get clean
 
@@ -15,7 +15,7 @@ RUN apt-get install -y maven openjdk-17-jdk && \
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 
-# ? Instalar dependencias necesarias para usar Pyenv
+# ? Pyenv
 RUN apt-get install -y \
     software-properties-common \
     make build-essential libssl-dev zlib1g-dev \
