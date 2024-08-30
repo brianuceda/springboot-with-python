@@ -146,7 +146,7 @@ Para que esta transformación automática funcione, la propiedad que llega en sn
 
 Esto permite que Jackson mapee automáticamente los nombres `snake_case` a `camelCase` sin necesidad de configuración adicional en cada campo.
 
-## Despliegue a Producción
+## Despliegue
 Pasos a seguir antes de lanzar a producción:
 
 1. Entrar al entorno virtual de Python.
