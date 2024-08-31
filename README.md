@@ -45,60 +45,69 @@ Pasos a seguir luego de clonar el repositorio:
 
 Este proyecto permite ejecutar funciones de scripts de Python desde una aplicación Spring Boot. Aquí se explica cómo hacer esto paso a paso:
 
-### Ejecución de Funciones de Python desde Java
+### Reglas
 
-Se puede ejecutar cualquier función de cualquier archivo de Python usando el método `executeFunction` de la clase `PythonUtils`.
+> * **Regla 1:** En Java, se puede ejecutar cualquier función de cualquier archivo de Python creando un objeto de la clase `PythonUtils` y usando el método `execute()`.
+
+> * **Regla 2:** Luego de crear `CUALQUIER` archivo Python dentro de `python/*.py`, se debe agregar ese archivo al la lista de `importaciones` de `__main__.py`.
+
+> * **Regla 3:** Los métodos en Python, `SIEMPRE` deben tener un `ÚNICO` parámetro llamado 'params'.
+
+### Ejecución de Funciones de Python desde Java
 
 1. El o los archivos de Python que se quiera(n) ejecutar debe(n) estar ubicados en la `ruta`:
 
-    ```bash
+    ```powershell
     src/main/java/com/example/testpython/python/*.py
     ```
 
-2. El método `executeFunction` necesita toma `2 o 3 parámetros`:
+2. El método `execute(*, *, ?, ?)` necesita toma `2, 3 o 4 parámetros`:
 
     * **(*) scriptName:** Nombre del archivo Python (con o sin la extensión .py).
     * **(*) functionName:** Nombre de la función a ejecutar dentro del archivo Python.
     * **(?) params:** Parámetros que se pasarán a la función de Python. Puede ser uno o muchos parámetros.
+    * **(?) file:** Archivo de cualquier tipo que se quiera analizar en Python.
 
-3. Ejemplo con ``sin parámetro(s)``: 
+3. La forma de enviar una respuesta a SpringBoot es colocando ``print(respuesta)``. La respuesta puede ser de tipo string, boolean, float, object o de **cualquier otro tipo**.
 
-    ```java
-    String response = pythonUtils.executeFunction("mi_script.py", "mi_funcion");
-    ```
-
-4. Ejemplo con ``un solo parámetro``: 
+4. Ejemplo ``sin parámetro(s)`` en Java:
 
     ```java
-    String response = pythonUtils.executeFunction("mi_script.py", "mi_funcion", 777);
+    String response = pythonUtils.execute("mi_script.py", "mi_funcion");
     ```
 
-5. Ejemplo con ``múltiples parámetros``:
+    Recepción y uso ``sin parámetro(s)`` en Python:
+    ```python
+    def example(params):
+        print('Hello World')
+    ```
+
+5. Ejemplo con ``un solo parámetro`` en Java: 
 
     ```java
-    List<Object> javaParams = List.of("param1", 2);
-    String pythonParams = pythonUtils.convertParamsToListOnPython(javaParams);
-    String response = pythonUtils.executeFunction("mi_script", "mi_funcion", pythonParams);
+    String example1 = pythonUtils.execute("script.py", "example", "Brian");
+    String example2 = pythonUtils.execute("script", "example", 777);
     ```
 
-    La función **convertParamsToListOnPython**, recibe una lista en Java y la convierte a una lista legible en Python.
-
-6. Recepción y uso de ``un solo parámetro`` en Python:
+    Recepción y uso de ``un solo parámetro`` en Python:
 
     ```python
-    # De SpringBoot viene: param = "Brian"
-
-    def return_name(param):
+    def example(param):
         print(param)
     ```
 
-    La forma de enviar una respuesta a SpringBoot es colocando ``print(respuesta)``. La respuesta puede ser de tipo string, boolean, float, object o de **cualquier otro tipo**.
+6. Ejemplo con ``múltiples parámetros`` en Java:
 
-6. Recepción y uso de ``multiples parámetros`` en Python:
+    ```java
+    List<Object> params = List.of("param1", 2);
+    String response = pythonUtils.execute("mi_script", "mi_funcion", params);
+    ```
+
+    Se debe crear una **Lista** que contenga los parametros **en orden** que recibirá la función de Python.
+
+    Recepción y uso de ``multiples parámetros`` en Python:
 
     ```python
-    # De SpringBoot viene: params = ["Brian", 20]
-
     def search_youtube(params):
         # Extraer los parámetros (obligatorio)
         params = extract_params(params)
@@ -109,6 +118,47 @@ Se puede ejecutar cualquier función de cualquier archivo de Python usando el m�
     ```
 
     Si la función en python tiene más de un parámetro, deben ser reasignados llamando a la función **extract_params(params)**. Se puede acceder a cada uno de los parámetros como elementos de una lista.
+
+7. Ejemplo con o sin `parametros` y con `un parámetro de tipo imagen` en Java:
+
+    * Argumento 3: **Parámetro(s) de cualquier tipo** de que se enviarán a la función **o MultipartFile** que se enviará a Python en formato de Bytes (en caso no se quiera enviar ningún parámetro).
+    * Argumento 4: Archivo de tipo **MultipartFile** que será procesado en Python en formato de Bytes.
+
+    ```java
+    public ResponseEntity<?> image(@RequestParam MultipartFile file) {
+        String example1 = pythonUtils.execute("image.py", "process_image", file);
+        String example2 = pythonUtils.execute("image.py", "process_image" 322, file);
+        String example3 = pythonUtils.execute("image.py", "process_image" List.of("Brian", 1), file);
+
+        // ...
+    }
+    ```
+
+    Recepción y uso de ``un parámetro de tipo imagen`` en Python:
+    ```python
+    def process_image(params):
+        from io import BytesIO
+        from PIL import Image
+        import base64
+
+        # Extraer los parámetros (obligatorio)
+        params = extract_params(params)
+        
+        # Procesar la imagen desde los bytes
+        image_data = sys.stdin.buffer.read()
+        image = Image.open(BytesIO(image_data))
+
+        # Procesar los bytes de la imagen a gusto
+        # ...
+        
+        # Convertir la imagen procesada a base64
+        buffered = BytesIO()
+        image.save(buffered, format="PNG")
+        encoded_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+        # Retornar imagen procesada a base64
+        print({'params': params, 'encoded_image': encoded_image})
+    ```
 
 ### Conversión Automática de ``snake_case`` **(Python)** a ``camelCase`` **(Java)**:
 Después de ejecutar una función de Python, normalmente, se necesita procesar los datos devueltos y convertirlos en un formato que Java pueda entender. Esto se hace utilizando DTOs (Data Transfer Objects).

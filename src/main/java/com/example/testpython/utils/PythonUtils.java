@@ -3,12 +3,14 @@ package com.example.testpython.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +19,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.java.Log;
 
-@Service
+@Component
 @Log
 public class PythonUtils {
     @Value("${APP_PRODUCTION}")
@@ -40,36 +42,61 @@ public class PythonUtils {
         }
     }
     
-    public String executeFunction(String scriptName, String functionName) throws Exception {
-        return this.executeFunction(scriptName, functionName, null);
+    public String execute(String scriptName, String functionName) throws Exception {
+        return this.execute(scriptName, functionName, null, null);
+    }
+    
+    public String execute(String scriptName, String functionName, Object params) throws Exception {
+        return this.execute(scriptName, functionName, params, null);
     }
 
+    // Verifica el tipo de dato de Object
+    @SuppressWarnings("unchecked")
+    public String execute(String scriptName, String functionName, Object params, MultipartFile file) throws Exception {
 
-    // Ejecuta una función de un script de Python
-    public String executeFunction(String scriptName, String functionName, Object params) throws Exception {
-        String result = "";
-
+        // Agrega la extensión ".py" al nombre del script si no la tiene
         if (!scriptName.endsWith(".py")) {
             scriptName += ".py";
         }
+        
+        // Lista
+        if (params instanceof List) {
+            params = this.convertParamsToListOnPython((List<Object>) params);
+        }
+        
+        // Imagen
+        if (file != null) {
+            return this.executeWithImage(scriptName, functionName, params, file.getBytes());
+        }
+        if (params instanceof MultipartFile) {
+            return this.executeWithImage(scriptName, functionName, null, ((MultipartFile) params).getBytes());
+        }
+        
+        // Cualquier otro tipo de dato
+        return this.executeWithPrimitive(scriptName, functionName, params);
+    }
+
+    // Ejecuta una función de un script de Python
+    public String executeWithPrimitive(String scriptName, String functionName, Object params) throws Exception {
+        String result = "";
 
         // Crea el comando a ejecutar en la terminal para llamar al script de Python
         List<String> command = new ArrayList<>();
-        command.add(this.pythonPath); // Ruta del ejecutable de Python
-        command.add(this.pythonScriptsPath + scriptName); // Ruta del script de Python
+        command.add(this.pythonPath); // Ejecutable de Python
+        command.add(this.pythonScriptsPath + "__main__.py"); // Archivo principal
+        command.add(scriptName); // Nombre del script de Python a importar
         command.add(functionName); // Nombre de la función a ejecutar
 
         // Si hay parámetros, los agrega al comando
         if (params != null) {
-            // Argumento(s) de la función convertidos a cadena de texto: "[param1, param2, ...]"
             command.add(params.toString());
+        } else {
+            command.add("None");
         }
 
-        // Crea un proceso para ejecutar el comando creado
+        // Crea e inicia un proceso para ejecutar el comando creado
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
-
-        // Inicia el proceso de ejecución
         Process process = processBuilder.start();
 
         // Lee la salida del proceso línea por línea (resultado de la función de Python ejecutada)
@@ -80,15 +107,57 @@ public class PythonUtils {
             }
         }
 
-        // Espera a que el proceso termine y obtiene el código de salida        
-        int exitCode = process.waitFor();
+        // Lanza una excepción si el proceso no termina correctamente
+        if (process.waitFor() != 0) {
+            throw new Exception("Error al ejecutar el script de Python");
+        }
 
-        // Lanza una excepción si el código de salida es diferente de 0 (ocurrió un error)
+        return result.trim();
+    }
+    
+    // Ejecuta una función de un script de Python que recibe una imagen como parámetro
+    public String executeWithImage(String scriptName, String functionName, Object params, byte[] imageBytes) throws Exception {
+        String result = "";
+        
+        List<String> command = new ArrayList<>();
+        command.add(this.pythonPath); // Ejecutable de Python
+        command.add(this.pythonScriptsPath + "__main__.py"); // Archivo principal
+        command.add(scriptName); // Nombre del script de Python a importar
+        command.add(functionName); // Nombre de la función a ejecutar
+        
+        // Si hay parámetros, los agrega al comando
+        if (params != null) {
+            command.add(params.toString());
+        } else {
+            command.add("None");
+        }
+
+        log.info("Ejecutando script de Python: " + command.toString());
+
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+
+        // Enviar datos de la imagen al proceso Python a través de stdin
+        try (OutputStream os = process.getOutputStream()) {
+            os.write(imageBytes);
+            os.flush();
+        }
+
+        // Leer la salida del proceso Python
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result += line + "\n";
+            }
+        }
+
+        int exitCode = process.waitFor();
         if (exitCode != 0) {
             throw new Exception("Error al ejecutar el script de Python");
         }
 
-        // Devuelve el resultado de la función de Python
         return result.trim();
     }
 
