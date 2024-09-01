@@ -10,7 +10,7 @@ def process_image(params):
         
         image = Image.open(BytesIO(data))
         
-        # 1. Convertir a escala de grises
+        # Convertir a escala de grises
         gray_image = image.convert("L")
 
         # Convertir la imagen procesada a base64
@@ -23,6 +23,5 @@ def process_image(params):
         }
 
         print(json.dumps(response_object))
-        # print(encoded_image)
     except Exception as e:
         print(json.dumps({'error': str(e)}))
