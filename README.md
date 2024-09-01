@@ -143,7 +143,7 @@ Este proyecto permite ejecutar funciones de scripts de Python desde una aplicaci
 
     Recepción y uso de ``un parámetro de tipo imagen`` en Python:
     ```python
-    def function(params):
+    def process_image(params):
         import sys
         import json
         from io import BytesIO
