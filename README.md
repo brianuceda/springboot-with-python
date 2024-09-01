@@ -136,28 +136,20 @@ Este proyecto permite ejecutar funciones de scripts de Python desde una aplicaci
 
     Recepción y uso de ``un parámetro de tipo imagen`` en Python:
     ```python
-    def process_image(params):
-        from io import BytesIO
-        from PIL import Image
-        import base64
+    def function(params):
+        import sys
+        import json
 
-        # Extraer los parámetros (obligatorio)
-        params = extract_params(params)
-        
-        # Procesar la imagen desde los bytes
-        image_data = sys.stdin.buffer.read()
-        image = Image.open(BytesIO(image_data))
+        try:
+            data = sys.stdin.buffer.read()
+            
+            response_object = {
+                'response': 'respuesta'
+            }
 
-        # Procesar los bytes de la imagen a gusto
-        # ...
-        
-        # Convertir la imagen procesada a base64
-        buffered = BytesIO()
-        image.save(buffered, format="PNG")
-        encoded_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
-
-        # Retornar imagen procesada a base64
-        print({'params': params, 'encoded_image': encoded_image})
+            print(json.dumps(response_object))
+        except Exception as e:
+            print(json.dumps({'error': str(e)}))
     ```
 
 ### Conversión Automática de ``snake_case`` **(Python)** a ``camelCase`` **(Java)**:

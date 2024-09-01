@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.testpython.dtos.ImageDTO;
-import com.example.testpython.dtos.PytubeDTO;
 import com.example.testpython.dtos.YoutubeSearchDTO;
 import com.example.testpython.utils.PythonUtils;
 
@@ -40,20 +39,6 @@ public class MainController {
         }
     }
 
-    @GetMapping("/watch")
-    public ResponseEntity<?> watchYoutube(@RequestParam String v) {
-        v = v.replace("https://www.youtube.com/watch?v=", "");
-
-        try {
-            String response = pythonUtils.execute("youtube", "watch_youtube", v);
-            PytubeDTO dto = pythonUtils.convertToDTO(response, PytubeDTO.class);
-
-            return new ResponseEntity<>(dto, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/search_youtube")
     public ResponseEntity<?> searchYoutube(
             @RequestParam String query,
@@ -70,19 +55,23 @@ public class MainController {
         }
     }
 
+    @SuppressWarnings("null")
     @PostMapping("/process_image")
     public ResponseEntity<?> processImage(@RequestParam(required = true) MultipartFile file) {
         try {
             if (file.isEmpty()) {
                 return new ResponseEntity<>(Map.of("error", "No se ha enviado ninguna imagen"), HttpStatus.BAD_REQUEST);
             }
+            if (file.getContentType() != null && !file.getContentType().startsWith("image")) {
+                return new ResponseEntity<>(Map.of("error", "El archivo no es una imagen"), HttpStatus.BAD_REQUEST);
+            }
 
             String response = pythonUtils.execute("image.py", "process_image", file);
+            ImageDTO dto = pythonUtils.convertToDTO(response, ImageDTO.class);
 
-            return new ResponseEntity<>(new ImageDTO(response), HttpStatus.OK);
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(Map.of("error", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

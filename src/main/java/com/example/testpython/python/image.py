@@ -1,26 +1,28 @@
 def process_image(params):
     import sys
-    
+    import json
     from io import BytesIO
     from PIL import Image
     import base64
-    
-    # Procesar la imagen desde los bytes
-    image_data = sys.stdin.buffer.read()
-    
+
     try:
-        # Procesar la imagen directamente desde los bytes
-        image = Image.open(BytesIO(image_data))
+        data = sys.stdin.buffer.read()
         
-        # Procesar la imagen (por ejemplo, convertirla a escala de grises)
+        image = Image.open(BytesIO(data))
+        
+        # 1. Convertir a escala de grises
         gray_image = image.convert("L")
 
         # Convertir la imagen procesada a base64
         buffered = BytesIO()
         gray_image.save(buffered, format="PNG")
         encoded_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        
+        response_object = {
+            'encoded_image': encoded_image
+        }
 
-        print({'encoded_image': encoded_image})
-
+        print(json.dumps(response_object))
+        # print(encoded_image)
     except Exception as e:
-        print({'error': str(e)})
+        print(json.dumps({'error': str(e)}))

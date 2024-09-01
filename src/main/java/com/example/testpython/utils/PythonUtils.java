@@ -132,8 +132,6 @@ public class PythonUtils {
             command.add("None");
         }
 
-        log.info("Ejecutando script de Python: " + command.toString());
-
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
 
@@ -187,7 +185,6 @@ public class PythonUtils {
     public <T> T convertToDTO(String jsonString, Class<T> dtoClass) {
         T dto = null;
         ObjectMapper objectMapper = new ObjectMapper();
-        // Configura el ObjectMapper para usar la estrategia de nombres de snake_case
         objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
         try {
@@ -195,9 +192,8 @@ public class PythonUtils {
 
             JsonNode jsonNode = objectMapper.readTree(jsonString);
 
-            // Verifica si la respuesta contiene un campo "error"
+            // Crear un DTO con el mensaje de error
             if (jsonNode.has("error")) {
-                // Crear un DTO con el mensaje de error
                 dto = dtoClass.getDeclaredConstructor().newInstance();
                 dto.getClass().getMethod("setError", String.class).invoke(dto, jsonNode.get("error").asText());
             } else {
