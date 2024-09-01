@@ -51,7 +51,7 @@ Este proyecto permite ejecutar funciones de scripts de Python desde una aplicaci
 
 > * **Regla 2:** Luego de crear `CUALQUIER` archivo Python dentro de `python/*.py`, se debe agregar ese archivo al la lista de `importaciones` de `__main__.py`.
 
-> * **Regla 3:** Los métodos en Python, `SIEMPRE` deben tener un `ÚNICO` parámetro llamado 'params'.
+> * **Regla 3:** Los métodos en Python, `SIEMPRE` deben tener un `ÚNICO` parámetro llamado 'params'. Si desde Java se ha enviado más de 1 parámetro, se debe acceder a ellos desde Python como elementos de una lista: params[0], params[1], etc.
 
 ### Ejecución de Funciones de Python desde Java
 
