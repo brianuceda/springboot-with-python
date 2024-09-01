@@ -61,16 +61,23 @@ Este proyecto permite ejecutar funciones de scripts de Python desde una aplicaci
     src/main/java/com/example/testpython/python/*.py
     ```
 
-2. El método `execute(*, *, ?, ?)` necesita toma `2, 3 o 4 parámetros`:
+2. Luego de crear un nuevo archivo en la ruta mencionada (por ejemplo: **python/songs.py**), se debe agregar ese archivo a la **lista de importaciones** de `__main__.py`:
+   ```python   
+   # Nombre de los Archivos nuevos
+   from songs import *
+   # ...
+   ```
+
+3. El método `execute(*, *, ?, ?)` necesita toma `2, 3 o 4 parámetros`:
 
     * **(*) scriptName:** Nombre del archivo Python (con o sin la extensión .py).
     * **(*) functionName:** Nombre de la función a ejecutar dentro del archivo Python.
     * **(?) params:** Parámetros que se pasarán a la función de Python. Puede ser uno o muchos parámetros.
     * **(?) file:** Archivo de cualquier tipo que se quiera analizar en Python.
 
-3. La forma de enviar una respuesta a SpringBoot es colocando ``print(respuesta)``. La respuesta puede ser de tipo string, boolean, float, object o de **cualquier otro tipo**.
+4. La forma de enviar una respuesta a SpringBoot es colocando ``print(respuesta)``. La respuesta puede ser de tipo string, boolean, float, object o de **cualquier otro tipo**.
 
-4. Ejemplo ``sin parámetro(s)`` en Java:
+5. Ejemplo ``sin parámetro(s)`` en Java:
 
     ```java
     String response = pythonUtils.execute("mi_script.py", "mi_funcion");
@@ -82,7 +89,7 @@ Este proyecto permite ejecutar funciones de scripts de Python desde una aplicaci
         print('Hello World')
     ```
 
-5. Ejemplo con ``un solo parámetro`` en Java: 
+6. Ejemplo con ``un solo parámetro`` en Java: 
 
     ```java
     String example1 = pythonUtils.execute("script.py", "example", "Brian");
@@ -96,7 +103,7 @@ Este proyecto permite ejecutar funciones de scripts de Python desde una aplicaci
         print(param)
     ```
 
-6. Ejemplo con ``múltiples parámetros`` en Java:
+7. Ejemplo con ``múltiples parámetros`` en Java:
 
     ```java
     List<Object> params = List.of("param1", 2);
@@ -119,7 +126,7 @@ Este proyecto permite ejecutar funciones de scripts de Python desde una aplicaci
 
     Si la función en python tiene más de un parámetro, deben ser reasignados llamando a la función **extract_params(params)**. Se puede acceder a cada uno de los parámetros como elementos de una lista.
 
-7. Ejemplo con o sin `parametros` y con `un parámetro de tipo imagen` en Java:
+8. Ejemplo con o sin `parametros` y con `un parámetro de tipo imagen` en Java:
 
     * Argumento 3: **Parámetro(s) de cualquier tipo** de que se enviarán a la función **o MultipartFile** que se enviará a Python en formato de Bytes (en caso no se quiera enviar ningún parámetro).
     * Argumento 4: Archivo de tipo **MultipartFile** que será procesado en Python en formato de Bytes.
